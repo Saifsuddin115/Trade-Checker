@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">    
     <head>
+
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="TC.png">
 <link rel="apple-touch-icon" href="TC.png">
-
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
         <title>Trade Checker</title>
@@ -441,10 +441,10 @@ Is this a FOMO trade?
 
 
 <div id="verdictOverlay">
-<div id="verdictValid" style="display:none"> VALID SETUP✅:<br>Now do NOT move SL or TP!</div>
+<div id="verdictValid" style="display:none"> VALID SETUP✅:<br>you can not hesitate to enter and you can not move SL or TP!</div>
 <div id="verdictFomo" style="display:none">⚠ SETUP INVALID<br><br>FOMO detected;</div>
-<div id="verdictLimit" style="display:none">⚠  SETUP INVALID<br><br>Daily trade limit reached</div>
-<div id="verdictInvalid" style="display:none">⚠ SETUP INVALID<br><br>Not enough confluences</div>
+<div id="verdictLimit" style="display:none">⚠  SETUP INVALID<br><br>Daily trade limit reached;</div>
+<div id="verdictInvalid" style="display:none">⚠ SETUP INVALID<br><br>Not enough confluences;</div>
 
     <button onclick="location.reload()">
         New Trade
@@ -513,11 +513,11 @@ function goToConfluences() {
 
 function checktrend(choice) {
     if (choice === 'Yes') {
-        document.getElementById('result').innerHTML = 'Great to take a trade off of it, aim for the closest TP if daily looks good, or closest high. No need for insane moves. MARK OUT ALL HIGHS!';
+        document.getElementById('result').innerHTML = 'Great to take a trade off of it, aim for the next tp if daily looks strong, otherwise aim for the body of the candle at high.'
        
     } else {
         
-        document.getElementById('result').innerHTML = 'Target HAS to be at the closest lower wick, seriously! Control yourself, only aim higher if trend OVERALL on much higher TF is bullish! MARK OUT ALL HIGHS!';
+        document.getElementById('result').innerHTML = 'Target HAS to be at the closest lower wick or at the body of the next candle after the closest high.';
 
     }
 
@@ -527,9 +527,9 @@ function checktrend(choice) {
 }
 function checkreversal(choice) {
     if (choice === 'Yes') {
-        document.getElementById('indecision').innerHTML = 'Aim for the body of the candle with a long wick in the marked rejection zone.';
+        document.getElementById('indecision').innerHTML = 'Aim for the body of the candle after the high with a long wick in the marked rejection zone.';
     } else {
-        document.getElementById('indecision').innerHTML = 'Aim for a higher TP (IF IN A BULL TREND), and make sure to mark out EVERY high.';
+        document.getElementById('indecision').innerHTML = 'Proceed; A reminder to mark out everything you come across for mental and visual clarity';
     }
       document.getElementById('next2').style.display = 'block';
      disableButtons("question2");
@@ -556,9 +556,14 @@ function trades(numbers){
         document.getElementById('hide').style.display = 'block';
 
     } else if (numbers === '3') {
-        document.getElementById('verdictLimit').style.display='block';
+       
+  document.getElementById('verdictLimit').style.display = 'block';
+
+        document.getElementById('verdictOverlay').style.background =
+            'var(--scrim-error)';
+
         document.getElementById('verdictOverlay').style.display = 'flex';
-document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
+
     }
  disableButtons("tradeButtons");
 
