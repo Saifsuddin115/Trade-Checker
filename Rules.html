@@ -449,7 +449,7 @@ Is this a FOMO trade?
 <div id="verdictValid" style="display:none"> VALID SETUP✅:<br>Now do NOT move SL or TP!</div>
 <div id="verdictFomo" style="display:none">⚠ SETUP INVALID<br><br>FOMO detected;</div>
 <div id="verdictLimit" style="display:none">⚠  SETUP INVALID<br><br>Daily trade limit reached</div>
-<div id="verdictInvalid" style="display:none">⚠ SETUP INVALID<br><br>Not enough confluence'</div>
+<div id="verdictInvalid" style="display:none">⚠ SETUP INVALID<br><br>Not enough confluences</div>
 
     <button onclick="location.reload()">
         New Trade
@@ -562,8 +562,8 @@ function trades(numbers){
 
     } else if (numbers === '3') {
         document.getElementById('verdictLimit').style.display='block';
-
-;document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
+        document.getElementById('verdictOverlay').style.display = 'flex';
+document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
     }
  disableButtons("tradeButtons");
 
