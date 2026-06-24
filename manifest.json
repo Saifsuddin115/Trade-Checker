@@ -2,7 +2,7 @@
   "id": "/Trade-Checker/",
   "name": "Trade Checker",
   "short_name": "TC",
-  "start_url": "/Trade-Checker/",
+  "start_url": "/Trade-Checker/Rules.html",
   "scope": "/Trade-Checker/",
   "display": "standalone",
   "background_color": "#0a0e17",
