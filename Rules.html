@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">    
+    <head>
+
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+        <title>Trade Checker</title>
+        <style>
+          
+
+
+
+      #instructions {
+    max-width: 480px;
+    margin: 40px auto 30px;
+    padding: 22px 24px;
+    border-top: 1px solid var(--surface-border);
+    border-bottom: 1px solid var(--surface-border);
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--text-muted);
+} 
+
+.eyebrow {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 12px;
+}
+:root {
+    --bg: #0a0e17;          /* ink navy, near-black */
+    --surface: #131a2c;     /* card background */
+    --surface-border: #2a3349; /* hairline border on cards */
+    --gold: #c9a227;        /* brass/champagne, less saturated than goldenrod */
+    --gold-bright: #e0c158; /* hover state */
+    --text: #ece7da;        /* warm ivory, NOT grey */
+    --text-muted: #8891a8;  /* slate, for secondary text */
+    --valid: #3f8f6f;       /* muted jade, not neon green */
+    --invalid: #804439;     /* oxblood, not neon red */
+    --scrim-gold: rgba(40, 32, 10, 0.93);   /* warm gold-tinted dark scrim, for valid */
+--scrim-error: rgba(8, 10, 16, 0.97); /* muted oxblood scrim, toned way down from #2a0a0a */
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+}
+
+button {
+    position: relative;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--gold);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 14px;
+    width: 120px;
+    margin: 8px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.3s ease, box-shadow 0.5s ease;
+    align-self: center;
+}
+
+button:hover {
+    transform: translateY(-5px);
+    color: var(--gold-bright);
+    box-shadow: 0 0 14px rgba(185, 163, 108, 0.35);
+}
+
+.border-draw {
+    position: absolute;
+    inset: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    pointer-events: none;
+}
+
+.border-draw path {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 2;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+button:hover .border-draw path {
+    stroke-dashoffset: 0;
+}
+
+h2,h3,h4,h5,h6 {
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--gold);
+     font-family: 'Playfair Display', serif;
+}
+#question1, #question2, #question3, #tradeButtons, #confluences {
+    padding: 20px;
+    font-family: 'Playfair Display', serif;
+    color: var(--gold);
+    width: min(590px, 90vw);
+    margin: 15px auto;
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    text-align: center;
+}
+
+
+
+
+.next-btn {
+    display: block;
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.next-btn:Hover{
+    transform: translateY(-5px);
+}
+
+button:active {
+
+    transform: scale(0.97);
+
+}
+
+#verdictOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 10;
+    animation: fadeIn 0.3s ease;
+}
+
+
+#verdictValid {
+    color: var(--gold-bright);
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(201, 162, 39, 0.18);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    font-family: inherit;
+}
+
+#verdictFomo, #verdictLimit, #verdictInvalid {
+    color: #c97a6c;
+    background: var(--surface);
+    border: 1px solid var(--invalid);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(156, 74, 60, 0.18);
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    font-family: inherit;
+}
+
+
+
+#resetButton{
+    display: block;
+    margin: 0 auto;
+}
+#resetbutton:hover{
+    transform: translateY(-5px);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+
+}
+
+
+@keyframes fadeIn {
+
+from {
+    opacity: 0;
+}
+
+to {
+    opacity: 1;
+}
+
+}
+
+
+.confluence-list {
+    text-align: left;
+    max-width: 480px;
+    margin: 16px auto 0;
+}
+
+.confluence-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 6px;
+    
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    cursor: pointer;
+     border-bottom: 1px solid rgba(201, 162, 39, 0.35);
+}
+
+.confluence-row:last-of-type {
+    border-bottom: none;
+}
+
+.confluence-row:hover {
+    background: rgba(185, 163, 108, 0.06);
+}
+
+.confluence-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.confluence-name input[type="checkbox"] {
+    accent-color: var(--gold);
+    width: 16px;
+    height: 16px;
+}
+
+.confluence-weight {
+    font-family: monospace;
+    font-size: 13px;
+    color: var(--gold);
+}
+.confluence-row:Hover{
+    transform:translateY(-3px);
+    background: rgba(201, 162, 39, 0.06);
+    box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.15);
+
+}
+
+
+
+        </style>
+
+
+
+
+    </head>
+
+    <body>
+<div id="instructions">
+    <span class="eyebrow">THE RULE</span>
+    This is a step-by-step process to become profitable. No emotions, simply follow this and you will become profitable inshallah.
+</div>
+
+<br>
+<br>
+<form>
+
+
+
+
+
+
+<div id="question1">
+
+
+
+<h2>TREND</h2>
+
+<p>
+Are we making higher highs or lower lows?
+</p>
+
+<button type="button" onclick="checktrend('Yes')">
+Higher Highs
+<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg>
+</button>
+
+<button type="button" onclick="checktrend('No')">
+Lower Lows
+<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg>
+</button>
+<p id="result"></p>
+<button type="button" id="next1" class="next-btn" style="display:none" onclick="goToNext('question1', 'question2')">Next<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+</div>
+
+
+<div id="question2" style="display:none">
+    <h3>INDECISION</h3>
+Is there a high TF DOJI? Are there long wicks, indecision, or signs of reversal to the downside?
+<p> 
+<button type="button" onclick="checkreversal('Yes')">Yes<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<button type="button" onclick="checkreversal('No')">No<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<p id="indecision"></p>
+<button type="button" id="next2" class="next-btn" style="display:none" onclick="goToNext('question2', 'question3')">Next<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+</div>
+
+
+
+
+<div id="question3" style="display:none">
+    <h4>FOMO</h4>
+Is this a FOMO trade?
+<p>
+<button type="button" onclick="FOMO('FOMO')">Yes<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<button type="button" onclick="FOMO('Not FOMO')">No<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<br>
+<p id="FOMO"></p>
+</p>
+</div>
+
+
+
+
+    <div id="tradeButtons" style="display:none">
+        <h5>DAILY TRADES</h5>
+<button type="button"  onclick="trades('0')">0<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<button type="button"  onclick="trades('1')">1<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<button type="button"  onclick="trades('2')">2<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+<button type="button"  onclick="trades('3')">3<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+
+
+<button type="button" id="hide" class="next-btn" style="display:none" onclick="goToConfluences('tradeButtons', 'confluences')">Next<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+</div>
+<p id="trades"></p>
+
+
+
+<div id="confluences" style="display:none">
+<h6>ENTER CONFLUENCES:</h6>
+<div class="confluence-list">
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="DailyOB" value="9"> Daily OB</span>
+    <span class="confluence-weight">9.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="DailyFVG" value="8.5"> Daily FVG</span>
+    <span class="confluence-weight">8.5</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="4HOB" value="8"> 4H OB</span>
+    <span class="confluence-weight">8.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="4HFVG" value="6"> 4H FVG</span>
+    <span class="confluence-weight">6.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="1HOB" value="7"> 1H OB</span>
+    <span class="confluence-weight">7.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="1HFVG" value="5.5"> 1H FVG</span>
+    <span class="confluence-weight">5.5</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="15MOB" value="6"> 15M OB</span>
+    <span class="confluence-weight">6.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="15MFVG" value="5"> 15M FVG</span>
+    <span class="confluence-weight">5.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="5MOB" value="5"> 5M OB</span>
+    <span class="confluence-weight">5.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="Hourly Liq sweep" value="4"> Hourly Liq sweep</span>
+    <span class="confluence-weight">4.0</span>
+  </label>
+  <label class="confluence-row">
+    <span class="confluence-name"><input type="checkbox" id="15M Liq sweep" value="4"> 15M Liq sweep</span>
+    <span class="confluence-weight">4.0</span>
+  </label>
+</div>
+<p>
+<button type="button" onclick="submitForm()">Submit<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg></button>
+</p>
+</div>
+
+
+<div id="verdictOverlay">
+<div id="verdictValid" style="display:none"> VALID SETUP✅:<br>Now do NOT move SL or TP!</div>
+<div id="verdictFomo" style="display:none">⚠ SETUP INVALID<br><br>FOMO detected;</div>
+<div id="verdictLimit" style="display:none">⚠  SETUP INVALID<br><br>Daily trade limit reached</div>
+<div id="verdictInvalid" style="display:none">⚠ SETUP INVALID<br><br>Not enough confluence'</div>
+
+    <button onclick="location.reload()">
+        New Trade
+        <svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg>
+    </button>
+</div>
+
+<br>
+<br>
+<br>
+<button type="button" id="resetButton" style="display:none" onclick="location.reload()">
+    Reset<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
+  <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
+</svg>
+</button>
+</form>
+
+</form>
+
+
+
+
+
+    </body>
+</html>
+
+<script>
+    
+function disableButtons(containerId)
+{
+    let buttons = document.querySelectorAll(`#${containerId} button:not(.next-btn)`)
+
+    buttons.forEach(button =>
+    {
+        button.disabled = true;
+    });
+}
+
+function disableCheckboxes(containerId)
+{
+    let boxes = document.querySelectorAll(`#${containerId} input`);
+
+    boxes.forEach(box =>
+    {
+        box.disabled = true;
+    });
+}
+
+function goToNext(currentId, nextId) {
+    document.getElementById(currentId).style.display = 'none'
+    document.getElementById(nextId).style.display = 'block'
+}
+
+function goToConfluences() {
+    document.getElementById('question3').style.display = 'none'
+    document.getElementById('tradeButtons').style.display = 'none'
+    document.getElementById('confluences').style.display = 'block'
+}
+
+
+
+
+function checktrend(choice) {
+    if (choice === 'Yes') {
+        document.getElementById('result').innerHTML = 'Great to take a trade off of it, aim for the closest TP if daily looks good, or closest high. No need for insane moves. MARK OUT ALL HIGHS!';
+       
+    } else {
+        
+        document.getElementById('result').innerHTML = 'Target HAS to be at the closest lower wick, seriously! Control yourself, only aim higher if trend OVERALL on much higher TF is bullish! MARK OUT ALL HIGHS!';
+
+    }
+
+      document.getElementById('next1').style.display = 'block';
+      disableButtons("question1")
+      document.getElementById('resetButton').style.display= 'block';
+}
+function checkreversal(choice) {
+    if (choice === 'Yes') {
+        document.getElementById('indecision').innerHTML = 'Aim for the body of the candle with a long wick in the marked rejection zone.';
+    } else {
+        document.getElementById('indecision').innerHTML = 'Aim for a higher TP (IF IN A BULL TREND), and make sure to mark out EVERY high.';
+    }
+      document.getElementById('next2').style.display = 'block';
+     disableButtons("question2");
+}
+function FOMO(choices) {
+    if (choices === 'FOMO') {
+             disableButtons("question3");
+      document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
+        document.getElementById('verdictFomo').style.display = 'block'
+
+document.getElementById('verdictOverlay').style.display = 'flex';
+        return;
+       
+    } else {
+        document.getElementById('FOMO').innerHTML = 'How many trades have you taken today?'
+        document.getElementById('tradeButtons').style.display='block';
+    }
+       disableButtons("question3");
+}
+
+
+function trades(numbers){
+    if (numbers === '0'|| numbers === '1' || numbers === '2') {
+        document.getElementById('hide').style.display = 'block';
+
+    } else if (numbers === '3') {
+        document.getElementById('verdictLimit').style.display='block';
+
+;document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
+    }
+ disableButtons("tradeButtons");
+
+}
+function submitForm() {
+    var checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+    var totalValue = 0;
+    checkboxes.forEach(function(checkbox) {
+        totalValue += parseFloat(checkbox.value);
+    });
+    if (totalValue > 12) {
+ document.getElementById('verdictOverlay').style.background = 'var(--scrim-gold)';
+    document.getElementById('verdictValid').style.display='block';
+    document.getElementById('verdictOverlay').style.display = 'flex';
+        
+
+document.getElementById('verdictOverlay').style.display = 'flex';
+    }
+    else {
+ document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
+    document.getElementById('verdictInvalid').style.display='block';
+    document.getElementById('verdictOverlay').style.display = 'flex';
+    }
+    disableCheckboxes("confluences");
+   
+}
+
+
+
+</script>
