@@ -116,9 +116,15 @@ h2,h3,h4,h5,h6 {
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     text-align: center;
+    
 }
 
 
+#question1.fade-out, #question2.fade-out, #question3.fade-out, #tradeButtons.fade-out, #confluences.fade-out {
+    opacity: 0;
+    transform: translateY(-15px);
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
 
 .next-btn {
@@ -255,6 +261,16 @@ to {
 
 }
 
+#result, #indecision, #trades {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+#result.show, #indecision.show, #trades.show {
+    opacity: 1;
+}
 
 
         </style>
@@ -373,8 +389,7 @@ Is this a FOMO trade?
   <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
 </svg></button>
 
-
-<button type="button" id="hide" class="next-btn" style="display:none" onclick="goToConfluences('tradeButtons', 'confluences')">Next<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
+<button type="button" id="hide" class="next-btn" style="display:none" onclick="goToNext('tradeButtons', 'confluences')">Next<svg class="border-draw" viewBox="0 0 100 100" preserveAspectRatio="none">
   <path d="M50,100 L100,100 L100,0 L50,0" vector-effect="non-scaling-stroke" />
   <path d="M50,100 L0,100 L0,0 L50,0" vector-effect="non-scaling-stroke" />
 </svg></button>
@@ -496,77 +511,91 @@ function disableCheckboxes(containerId)
         box.disabled = true;
     });
 }
+function goToNext(currentId, nextId, onSwap) {
+    let current = document.getElementById(currentId);
+    let next = document.getElementById(nextId);
 
-function goToNext(currentId, nextId) {
-    document.getElementById(currentId).style.display = 'none'
-    document.getElementById(nextId).style.display = 'block'
+    current.classList.add('fade-out');
+
+    setTimeout(function() {
+        current.style.display = 'none';
+        current.classList.remove('fade-out');
+
+        if (typeof onSwap === 'function') {
+            onSwap();
+        }
+
+        next.style.transition = 'none';
+        next.style.opacity = '0';
+        next.style.transform = 'translateY(15px)';
+        next.style.display = 'block';
+
+        next.offsetHeight;
+
+        next.style.transition = 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+        next.style.opacity = '1';
+        next.style.transform = 'translateY(0)';
+    }, 350);
 }
-
-function goToConfluences() {
-    document.getElementById('question3').style.display = 'none'
-    document.getElementById('tradeButtons').style.display = 'none'
-    document.getElementById('confluences').style.display = 'block'
+function revealText(element) {
+    element.classList.add('show');
+    element.style.maxHeight = element.scrollHeight + 'px';
 }
-
-
-
 
 function checktrend(choice) {
     if (choice === 'Yes') {
         document.getElementById('result').innerHTML = 'Great to take a trade off of it, aim for the next tp if daily looks strong, otherwise aim for the body of the candle at high.'
        
+revealText(document.getElementById('result'));
     } else {
         
         document.getElementById('result').innerHTML = 'Target HAS to be at the closest lower wick or at the body of the next candle after the closest high.';
-
+revealText(document.getElementById('result'));
     }
 
-      document.getElementById('next1').style.display = 'block';
+    document.getElementById('next1').style.display = 'block';
       disableButtons("question1")
       document.getElementById('resetButton').style.display= 'block';
 }
 function checkreversal(choice) {
     if (choice === 'Yes') {
         document.getElementById('indecision').innerHTML = 'Aim for the body of the candle after the high with a long wick in the marked rejection zone.';
+        revealText(document.getElementById('indecision'));
     } else {
         document.getElementById('indecision').innerHTML = 'Proceed; A reminder to mark out everything you come across for mental and visual clarity.';
+        revealText(document.getElementById('indecision'));
     }
       document.getElementById('next2').style.display = 'block';
      disableButtons("question2");
 }
 function FOMO(choices) {
     if (choices === 'FOMO') {
-             disableButtons("question3");
-      document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
-        document.getElementById('verdictFomo').style.display = 'block'
-
-document.getElementById('verdictOverlay').style.display = 'flex';
+        document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
+        document.getElementById('verdictFomo').style.display = 'block';
+        document.getElementById('verdictOverlay').style.display = 'flex';
+        setTimeout(function() {
+            disableButtons("question3");
+        }, 300);
         return;
-       
     } else {
-        document.getElementById('FOMO').innerHTML = 'How many trades have you taken today?'
-        document.getElementById('tradeButtons').style.display='block';
+        goToNext('question3', 'tradeButtons', function() {
+            disableButtons("question3");
+        });
     }
-       disableButtons("question3");
 }
 
-
 function trades(numbers){
-    if (numbers === '0'|| numbers === '1' || numbers === '2') {
+    if (numbers === '0' || numbers === '1' || numbers === '2') {
         document.getElementById('hide').style.display = 'block';
-
+        disableButtons("tradeButtons");
     } else if (numbers === '3') {
-       
-  document.getElementById('verdictLimit').style.display = 'block';
-
-        document.getElementById('verdictOverlay').style.background =
-            'var(--scrim-error)';
-
+        document.getElementById('verdictLimit').style.display = 'block';
+        document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
         document.getElementById('verdictOverlay').style.display = 'flex';
-
+        setTimeout(function() {
+            disableButtons("tradeButtons");
+        }, 300);
     }
- disableButtons("tradeButtons");
-
 }
 function submitForm() {
     var checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
