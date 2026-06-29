@@ -190,7 +190,7 @@ button:active {
     display: block;
     margin: 0 auto;
 }
-#resetbutton:hover{
+#resetButton:hover{
     transform: translateY(-5px);
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 
@@ -270,6 +270,29 @@ to {
 
 #result.show, #indecision.show, #trades.show {
     opacity: 1;
+}
+
+dialog#confirmModal {
+    color: var(--gold-bright);
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(201, 162, 39, 0.18);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    font-family: inherit;
+    max-width: 420px;
+}
+dialog#confirmModal[open] {
+    animation: fadeIn 0.3s ease;
+}
+dialog#confirmModal::backdrop {
+    background: var(--scrim-error);
+}
+dialog#confirmModal h2 {
+    font-size: 18px;
+    line-height: 1.5;
+    margin-bottom: 24px;
 }
 
 
@@ -453,7 +476,11 @@ Is this a FOMO trade?
 </svg></button>
 </p>
 </div>
-
+<dialog id="confirmModal">
+    <h2>Are you sure you are not making up reasons to enter? Remember saving capital is the most important thing.</h2>
+    <button type="button" id="modalYes" class="modal-btn">Yes</button>
+    <button type="button" id="modalNo" class="modal-btn">No</button>
+</dialog>
 
 <div id="verdictOverlay">
 <div id="verdictValid" style="display:none"> VALID SETUP✅:<br>you can not hesitate to enter and you can not move SL or TP!</div>
@@ -481,7 +508,6 @@ Is this a FOMO trade?
 </button>
 </form>
 
-</form>
 
 
 
@@ -511,6 +537,9 @@ function disableCheckboxes(containerId)
         box.disabled = true;
     });
 }
+
+
+
 function goToNext(currentId, nextId, onSwap) {
     let current = document.getElementById(currentId);
     let next = document.getElementById(nextId);
@@ -603,22 +632,35 @@ function submitForm() {
     checkboxes.forEach(function(checkbox) {
         totalValue += parseFloat(checkbox.value);
     });
-    if (totalValue > 12) {
- document.getElementById('verdictOverlay').style.background = 'var(--scrim-gold)';
-    document.getElementById('verdictValid').style.display='block';
-    document.getElementById('verdictOverlay').style.display = 'flex';
-        
 
-document.getElementById('verdictOverlay').style.display = 'flex';
+    if (totalValue > 12) {
+        document.getElementById('confirmModal').showModal();
+    } else {
+        document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
+        document.getElementById('verdictInvalid').style.display = 'block';
+        document.getElementById('verdictOverlay').style.display = 'flex';
+        disableCheckboxes("confluences");
     }
-    else {
- document.getElementById('verdictOverlay').style.background = 'var(--scrim-error)';
-    document.getElementById('verdictInvalid').style.display='block';
-    document.getElementById('verdictOverlay').style.display = 'flex';
-    }
-    disableCheckboxes("confluences");
-   
 }
+
+document.getElementById('modalYes').addEventListener('click', function() {
+    document.getElementById('confirmModal').close();
+    document.getElementById('verdictOverlay').style.background = 'var(--scrim-gold)';
+    document.getElementById('verdictValid').style.display = 'block';
+    document.getElementById('verdictOverlay').style.display = 'flex';
+    disableCheckboxes("confluences");
+});
+
+document.getElementById('modalNo').addEventListener('click', function() {
+    document.getElementById('confirmModal').close();
+
+
+    let checkboxes = document.querySelectorAll('#confluences input[type="checkbox"]');
+    checkboxes.forEach(function(checkbox) {
+        checkbox.checked = false;
+    });
+});
+
 
 
 
